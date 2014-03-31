@@ -11,6 +11,7 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   this.setup();
+  setInterval(this.update.bind(this), 160);
 }
 
 // Restart the game
@@ -57,7 +58,8 @@ GameManager.prototype.setup = function () {
     // Add the initial tiles
     this.addStartTiles();
   }
-
+  this.snakes = [];
+  this.setup_player_snake();
   // Update the actuator
   this.actuate();
 };
@@ -72,9 +74,9 @@ GameManager.prototype.addStartTiles = function () {
 // Adds a tile in a random position
 GameManager.prototype.addRandomTile = function () {
   if (this.grid.cellsAvailable()) {
-    var value = Math.random() < 0.9 ? 2 : 4;
+    //var value = Math.random() < 0.9 ? 2 : 4;
+    var value = this.random_value();
     var tile = new Tile(this.grid.randomAvailableCell(), value);
-
     this.grid.insertTile(tile);
   }
 };
@@ -140,12 +142,14 @@ GameManager.prototype.move = function (direction) {
   var cell, tile;
 
   var vector     = this.getVector(direction);
-  var traversals = this.buildTraversals(vector);
-  var moved      = false;
+  //var traversals = this.buildTraversals(vector);
+  var moved      = true;
 
   // Save the current tile positions and remove merger information
-  this.prepareTiles();
-
+  //this.prepareTiles();
+  this.direction = direction;
+  return;
+/*
   // Traverse the grid in the right direction and move tiles
   traversals.x.forEach(function (x) {
     traversals.y.forEach(function (y) {
@@ -182,9 +186,9 @@ GameManager.prototype.move = function (direction) {
       }
     });
   });
-
+*/
   if (moved) {
-    this.addRandomTile();
+
 
     if (!this.movesAvailable()) {
       this.over = true; // Game over!
