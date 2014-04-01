@@ -19,12 +19,70 @@ Snake.prototype.score = function () {
   var ret = 0;
   for (var i=0; i<this.size(); i++)
   {
-    ret += this.tiles[i].value * this.tiles[i].value;
+    if (parseInt(this.tiles[i].value) == this.tiles[i].value)
+        ret += this.tiles[i].value * this.tiles[i].value;
+    else
+        ret += 10000;
   }
   return ret;
 }
 
+Snake.prototype.letters = function () {
+    ret = [];
+    for (var i=0; i<this.size(); i++)
+    {
+        if (parseInt(this.tiles[i].value) != this.tiles[i].value)
+        {
+            ret[this.tiles[i].value] = ret[this.tiles[i].value] || 0;
+            ret[this.tiles[i].value]++;
+        }
+    }
+    return ret;
+}
+
+Snake.prototype.judge = function () {
+  if (this.tiles[0].value >= 2048)
+    return true;
+  var l = this.letters();
+  if (l["A"]>0 && l["P"]>0 && l["R"]>0 && l["I"]>0 && l["L"]>1 && l["F"]>0 && l["O"]>1)
+    return true;
+  return false;
+}
+
+Snake.prototype.index_of = function (tile) {
+  for (var i=0; i<this.tiles.length; i++)
+  {
+    if (this.tiles[i].x == tile.x && this.tiles[i].y == tile.y)
+    {
+        return i;
+    }
+  }
+  return -1;
+}
+
+Snake.prototype.truncate = function(index) {
+  // truncates index...tiles.length to become food!
+  while (this.tiles.length > index)
+  {
+    var t = this.tiles.pop();
+    t.tag = "food";
+  }
+}
+
 Snake.prototype.update = function () {
+  // if head can merge, merge once
+  if (this.tiles.length > 2 && this.tiles[0].value == this.tiles[1].value &&
+      parseInt(this.tiles[0].value) == this.tiles[0].value)
+  {
+    this.grid.removeTile(this.tiles[0]);
+    for (var j=1; j<this.tiles.length; j++) {
+      this.game.moveTile(this.tiles[j], this.tiles[j-1].previousPosition);
+    }
+    this.tiles[1].value *= 2;
+    this.tiles.shift();
+    return;
+  }
+
   var v = this.game.getVector(this.direction);
   var cell = {x: this.head().x+v.x, y: this.head().y+v.y };
 
@@ -37,9 +95,12 @@ Snake.prototype.update = function () {
             this.game.moveTile(this.tiles[j], this.tiles[j-1].previousPosition);
         }
     } else if (t.tag == "food") {
-        this.game.addRandomTile();
+        if (!t.snake)
+        {
+          this.game.addRandomTile();
+        }
         // eat it or merge
-        if (t.value == this.head().value)
+        if (t.value == this.head().value && parseInt(t.value) == t.value)
         {
             this.tiles[0].value *= 2;
             this.grid.removeTile(t);
@@ -55,19 +116,36 @@ Snake.prototype.update = function () {
         }
     } else if (t.tag == "snake") {
         // eat self or others
+        t.snake.truncate(t.snake.index_of(t));
+        this.update();
     }
   }
 }
 
 GameManager.prototype.magic_word = "APRILFOOL";  // length=⑨
 GameManager.prototype.random_value = function () {
+  // altered my original random value to make it easier.
   var max = 128;
-  var x = Math.floor(Math.random() * max);
+
+  // initial type random
+  var p = Math.random() * 100;
+  var head = this.snakes[0].tiles[0].value;
   var value = 1;
-  if (x==0) {
+  if (p<9)
+  {
     // letters!
     value = this.magic_word.substr(Math.floor(Math.random() * 9), 1);
-  } else {
+  }
+  else if (p<25 && parseInt(head) == head && head <= max)
+  {
+    // when head is small, often spawn an easy-to-eat tile
+    value = head;
+  }
+  else
+  {
+    // original scenario
+    var x = Math.floor(Math.random() * max);
+    if (x==0) x = 1;
     while (x<max) { x <<= 1; value <<= 1; }
   }
   return value;
@@ -92,6 +170,10 @@ GameManager.prototype.setup_player_snake = function () {
   this.snakes.push( new Snake(this, [c, d], 1) );
 }
 
+GameManager.prototype.setup_magic_word = function () {
+
+}
+
 GameManager.prototype.update_snake = function () {
 
   if (this.direction!=null && (this.direction - this.snakes[0].direction) % 2 != 0)
@@ -105,7 +187,12 @@ GameManager.prototype.update_snake = function () {
 }
 
 GameManager.prototype.update = function () {
-  this.prepareTiles();
-  this.update_snake();
-  this.actuate();
+  if (!this.isGameTerminated())
+  {
+    this.prepareTiles();
+    this.update_snake();
+    this.won = this.snakes[0].judge();
+    this.actuate();
+    this.actuator.actuate_magic(this.snakes[0].letters());
+  }
 }

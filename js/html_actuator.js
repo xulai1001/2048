@@ -35,6 +35,26 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
   });
 };
 
+HTMLActuator.prototype.actuate_magic = function (letters) {
+    var mw = ["A", "P", "R", "I", "L", "F", "O", "O1", "L1"];
+    for (var i=0; i<mw.length; i++)
+    {
+      var item = document.querySelector(".magic-" +mw[i]);
+      item.className = item.className.replace(/magic-base/, "");
+      item.className = item.className.replace(/magic-base/, "");
+      item.className = item.className.replace(/magic-base/, "");
+    }
+    for (var i in letters)
+    {
+      if (letters[i]>0) {
+          var name = ".magic-" + i;
+          document.querySelector(name).className += " magic-base";
+          if ((i=="L" || i=="O") && letters[i]>1)
+            document.querySelector(name+"1").className += " magic-base";
+        }
+    }
+}
+
 // Continues the game (both restart and keep playing)
 HTMLActuator.prototype.continueGame = function () {
   this.clearMessage();
@@ -61,6 +81,12 @@ HTMLActuator.prototype.addTile = function (tile) {
 
   this.applyClasses(wrapper, classes);
 
+  // if (parseInt(tile.value) != tile.value)
+  // {
+  //   // viktor: magic words!
+  //   inner.classList.add("magic-base");
+  //   inner.classList.add("magic-" + tile.value);
+  // }
   inner.classList.add("tile-inner");
   inner.textContent = tile.value;
 

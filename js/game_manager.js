@@ -11,7 +11,8 @@ function GameManager(size, InputManager, Actuator, StorageManager) {
   this.inputManager.on("keepPlaying", this.keepPlaying.bind(this));
 
   this.setup();
-  setInterval(this.update.bind(this), 160);
+ // this.restart();
+  setInterval(this.update.bind(this), 200);
 }
 
 // Restart the game
@@ -38,7 +39,7 @@ GameManager.prototype.isGameTerminated = function () {
 
 // Set up the game
 GameManager.prototype.setup = function () {
-  var previousState = this.storageManager.getGameState();
+  var previousState = null; //this.storageManager.getGameState();
 
   // Reload the game from a previous game if present
   if (previousState) {
@@ -49,18 +50,19 @@ GameManager.prototype.setup = function () {
     this.won         = previousState.won;
     this.keepPlaying = previousState.keepPlaying;
   } else {
+    this.storageManager.clearGameState();
     this.grid        = new Grid(this.size);
     this.score       = 0;
     this.over        = false;
     this.won         = false;
     this.keepPlaying = false;
-
+    this.snakes = [];
+    this.setup_player_snake();
     // Add the initial tiles
     this.addStartTiles();
   }
-  this.snakes = [];
-  this.setup_player_snake();
   // Update the actuator
+
   this.actuate();
 };
 
