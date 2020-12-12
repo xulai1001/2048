@@ -44,7 +44,7 @@ Snake.prototype.judge = function () {
   if (this.tiles[0].value >= 2048)
     return true;
   var l = this.letters();
-  if (l["A"]>0 && l["P"]>0 && l["R"]>0 && l["I"]>0 && l["L"]>1 && l["F"]>0 && l["O"]>1)
+  if (l["A"]>0 && l["R"]>0 && l["K"]>0 && l["N"]>0 && l["I"]>0 && l["G"]>0 && l["H"]>0 && l["T"]>0 && l["S"]>0)
     return true;
   return false;
 }
@@ -122,7 +122,7 @@ Snake.prototype.update = function () {
   }
 }
 
-GameManager.prototype.magic_word = "APRILFOOL";  // length=⑨
+GameManager.prototype.magic_word = "ARKNIGHTS";  // length=⑨
 GameManager.prototype.random_value = function () {
   // altered my original random value to make it easier.
   var max = 128;

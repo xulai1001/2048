@@ -36,7 +36,7 @@ HTMLActuator.prototype.actuate = function (grid, metadata) {
 };
 
 HTMLActuator.prototype.actuate_magic = function (letters) {
-    var mw = ["A", "P", "R", "I", "L", "F", "O", "O1", "L1"];
+    var mw = ["A", "R", "K", "N", "I", "G", "H", "T", "S"];
     for (var i=0; i<mw.length; i++)
     {
       var item = document.querySelector(".magic-" +mw[i]);
